@@ -265,9 +265,17 @@ class Home extends StatelessWidget {
                                           SizedBox(width: 8,),
                                           Expanded(
                                             child: GestureDetector(
-                                              onTap: (){
-                                                navigateTo(context, MySubscriptions(userCounters: cubit.profileModel!.userCounters,));
+                                              onTap: () async {
+                                                bool isAuth = await cubit.authenticateUser();
+                                                if (isAuth) {
+                                                  navigateTo(context, MySubscriptions(userCounters: cubit.profileModel!.userCounters,));
+                                                } else {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text('فشل التحقق من الهوية')),
+                                                  );
+                                                }
                                               },
+
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
                                                 decoration: BoxDecoration(
@@ -377,8 +385,15 @@ class Home extends StatelessWidget {
                                           SizedBox(width: 8,),
                                           Expanded(
                                             child: GestureDetector(
-                                              onTap: (){
-                                                navigateTo(context, WithdrawMoney());
+                                              onTap: () async {
+                                                bool isAuth = await cubit.authenticateUser();
+                                                if (isAuth) {
+                                                  navigateTo(context, WithdrawMoney());
+                                                } else {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text('فشل التحقق من الهوية')),
+                                                  );
+                                                }
                                               },
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
@@ -489,9 +504,15 @@ class Home extends StatelessWidget {
                                           SizedBox(width: 8,),
                                           Expanded(
                                             child: GestureDetector(
-                                              onTap: (){
-                                                navigateTo(context, SendPoints(
-                                                  sawa: cubit.profileModel!.sawa.toString(),));
+                                              onTap: () async {
+                                                bool isAuth = await cubit.authenticateUser();
+                                                if (isAuth) {
+                                                  navigateTo(context, SendPoints(
+                                                    sawa: cubit.profileModel!.sawa.toString(),));                                                } else {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text('فشل التحقق من الهوية')),
+                                                  );
+                                                }
                                               },
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),

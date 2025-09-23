@@ -10,6 +10,10 @@ class AnimationScaleState extends AppStates {
 class ValidationState extends AppStates {}
 class PasswordVisibilityChanged extends AppStates {}
 
+class ResetPasswordLoadingState extends AppStates {}
+class ResetPasswordSuccessState extends AppStates {}
+class ResetPasswordErrorState extends AppStates {}
+
 class GetAdsLoadingState extends AppStates {}
 class GetAdsSuccessState extends AppStates {}
 class GetAdsErrorStates extends AppStates {}

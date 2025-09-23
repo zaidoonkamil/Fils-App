@@ -23,11 +23,67 @@ import '../model/RoomModel.dart';
 import '../model/MessageModel.dart';
 import '../core/chat_service.dart';
 import '../core/socket_service.dart';
+import 'package:local_auth/local_auth.dart';
 
 class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(AppInitialState());
 
   static AppCubit get(context) => BlocProvider.of(context);
+
+  resetPassword({required String email ,required String newPassword ,required BuildContext context,}){
+    emit(ResetPasswordLoadingState());
+    DioHelper.postData(
+      url: '/admin/reset-password',
+      data: {
+        'email': email ,
+        'newPassword': newPassword ,
+      },
+    ).then((value) {
+      emit(ResetPasswordSuccessState());
+    }).catchError((error)
+    {
+      if (error is DioError) {
+        showToastError(
+          text: error.response?.data["error"] ?? "حدث خطأ غير معروف",
+          context: context,
+        );
+        emit(ResetPasswordErrorState());
+      }else {
+        print("Unknown Error: $error");
+      }
+    });
+  }
+
+  Future<bool> authenticateUser() async {
+    final LocalAuthentication auth = LocalAuthentication();
+    try {
+      bool canCheck = await auth.canCheckBiometrics;
+      print("canCheckBiometrics: $canCheck");
+
+      bool isDeviceSupported = await auth.isDeviceSupported();
+      print("isDeviceSupported: $isDeviceSupported");
+
+      if (!canCheck && !isDeviceSupported) {
+        print("الجهاز ما يدعم أي نوع من المصادقة");
+        return false;
+      }
+
+      bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'الرجاء تأكيد هويتك للمتابعة',
+        options: const AuthenticationOptions(
+          biometricOnly: false,
+          stickyAuth: true,
+        ),
+      );
+
+      print("didAuthenticate: $didAuthenticate");
+      return didAuthenticate;
+    } catch (e) {
+      print("Auth error: $e");
+      return false;
+    }
+  }
+
 
   Future<void> playAnimation() async {
     for (double i = 0; i <= 1; i += 0.1) {

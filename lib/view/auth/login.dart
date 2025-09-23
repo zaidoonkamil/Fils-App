@@ -14,6 +14,7 @@ import '../../core/navigation_bar/navigation_bar_admin.dart';
 import '../../core/navigation_bar/navigation_bar_agents.dart';
 import '../../core/network/local/cache_helper.dart';
 import '../../core/widgets/show_toast.dart';
+import 'forget_pass.dart';
 import 'loginCode.dart';
 
 class Login extends StatelessWidget {
@@ -116,16 +117,35 @@ class Login extends StatelessWidget {
                                 }
                               },
                             ),
+                            const SizedBox(height: 16),
+                            CustomTextField(
+                              controller: codeController,
+                              hintText: 'كود الاحالة (اختياري)',
+                              prefixIcon: Icons.code,
+                              keyboardType: TextInputType.phone,
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                       navigateTo(context, ForgetPass());
+                                  },
+                                  child: const Text(
+                                    'نسيت كلمة السر ؟',
+                                    style: TextStyle(
+                                      color: primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: codeController,
-                        hintText: 'كود الاحالة (اختياري)',
-                        prefixIcon: Icons.code,
-                        keyboardType: TextInputType.phone,
-                      ),
+
                       const SizedBox(height: 35),
                       ConditionalBuilder(
                           condition: state is !LoginLoadingState,
@@ -144,12 +164,24 @@ class Login extends StatelessWidget {
                                   );
                                 }
                               },
-                              child:Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset('assets/images/Sign-in Button.png'),
-                                ],
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                                child: Stack(
+                                  children: [
+                                    Image.asset('assets/images/Sign-in Button (11).png'),
+                                    SizedBox(
+                                      height: 46,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('تسجيل الدخول',style: TextStyle(color: Colors.white,fontSize: 15),),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+
                             );
                           },
                         fallback: (c)=> CircularProgressIndicator(color: primaryColor,),

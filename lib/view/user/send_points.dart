@@ -102,7 +102,7 @@ class SendPoints extends StatelessWidget {
                                       children: [
                                         Expanded(child: Text('يمكنك ارسال الفلس الى صديقك عن طريق كود الدعوة ',
                                           textAlign: TextAlign.end,
-                                          style: TextStyle(fontSize: 16,color: Colors.black54),)),
+                                          style: TextStyle(fontSize: 12,color: Colors.black54),)),
                                         SizedBox(width: 6,),
                                         Container(
                                           decoration: BoxDecoration(
@@ -212,9 +212,9 @@ class SendPoints extends StatelessWidget {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        Expanded(child: Text('علما ان عمولة الارسال %10 \n وحد التحويل اليومي 500 فلس ',
+                                        Expanded(child: Text('علما ان عمولة الارسال %10 وحد التحويل اليومي 500 فلس ',
                                           textAlign: TextAlign.end,
-                                          style: TextStyle(fontSize: 16,color: Colors.black54),)),
+                                          style: TextStyle(fontSize: 12,color: Colors.black54),)),
                                         SizedBox(width: 6,),
                                         Container(
                                             decoration: BoxDecoration(

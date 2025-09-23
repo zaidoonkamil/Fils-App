@@ -68,7 +68,7 @@ class Profile extends StatelessWidget {
                               children: [
                                 Stack(
                                   children: [
-                                    Image.asset('assets/images/Sign-in Button (6).png'),
+                                    Image.asset('assets/images/Sign-in Button (6).png',height: 80,),
                                   ],
                                 ),
                                 Column(
