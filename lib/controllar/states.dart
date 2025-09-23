@@ -2,8 +2,17 @@ abstract class AppStates {}
 
 class AppInitialState extends AppStates {}
 
+class AnimationScaleState extends AppStates {
+  final double scale;
+  AnimationScaleState(this.scale);
+}
+
 class ValidationState extends AppStates {}
 class PasswordVisibilityChanged extends AppStates {}
+
+class GetAdsLoadingState extends AppStates {}
+class GetAdsSuccessState extends AppStates {}
+class GetAdsErrorStates extends AppStates {}
 
 class LoginLoadingState extends AppStates {}
 class LoginSuccessState extends AppStates {}

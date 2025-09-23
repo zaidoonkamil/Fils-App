@@ -1,16 +1,21 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:fils/controllar/cubit.dart';
 import 'package:fils/controllar/states.dart';
 import 'package:fils/core/%20navigation/navigation.dart';
 import 'package:fils/core/styles/themes.dart';
+import 'package:fils/model/GetAdsModel.dart';
 import 'package:fils/view/user/send_points.dart';
 import 'package:fils/view/user/store/store.dart';
 import 'package:fils/view/user/subscription_market.dart';
 import 'package:fils/view/user/withdraw_money.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
+import '../../core/network/remote/dio_helper.dart';
 import '../../core/widgets/appBar.dart';
+import 'ads.dart';
 import 'contect_woner.dart';
 import 'counter.dart';
 import 'fun/fun.dart';
@@ -20,10 +25,13 @@ import 'my_subscriptions.dart';
 class Home extends StatelessWidget {
   const Home({super.key});
 
+  static int currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => AppCubit()
+        ..getAds(context: context)
         ..getProfile(context: context)
         ..timeOfDay(context: context),
       child: BlocConsumer<AppCubit,AppStates>(
@@ -47,33 +55,112 @@ class Home extends StatelessWidget {
                                 const SizedBox(height: 14,),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                  child: Stack(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      cubit.time == 'night'? Center(child: Image.asset('assets/images/Rectangle 42035.png')):
-                                      Center(child: Image.asset('assets/images/Rectangle 42039.png')),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 20,vertical: 40),
-                                        width: double.infinity,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                Image.asset('assets/images/noto-v1_full-moon.png'),
-                                                const SizedBox(width: 10,),
-                                                cubit.time == 'night'? Text('مساء الخير',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),):
-                                                Text('صباح الخير',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-                                              ],
-                                            ),
-                                            Text(cubit.profileModel!.name,style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 22),),
-                                            Text('! ابدأ يومك بجمع المكافئات',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              cubit.time == 'night'? Text('مساء الخير',style: TextStyle(fontWeight: FontWeight.bold),):
+                                              Text('صباح الخير',style: TextStyle(fontWeight: FontWeight.bold),),
+                                              Text(cubit.profileModel!.name,style: TextStyle(fontWeight: FontWeight.bold),),
+                                            ],
+                                          ),
+                                          SizedBox(width: 6,),
+                                          Center(child: Image.asset('assets/images/Mask group (3).png')),
 
-                                          ],
-                                        ),
+                                        ],
                                       ),
                                     ],
+                                  ),
+                                ),
+                                const SizedBox(height: 14,),
+                                ConditionalBuilder(
+                                  condition:cubit.getAdsModel.isNotEmpty,
+                                  builder:(c){
+                                    return Stack(
+                                      children: [
+                                        CarouselSlider(
+                                          items: cubit.getAdsModel.isNotEmpty
+                                              ? cubit.getAdsModel.expand<Widget>((GetAds ad) =>
+                                              ad.images.map<Widget>((String imageUrl) => Builder(
+                                                builder: (BuildContext context) {
+                                                  String formattedDate =
+                                                  DateFormat('yyyy/M/d').format(ad.createdAt);
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      navigateTo(
+                                                        context,
+                                                        AdsUser(
+                                                          tittle: ad.title,
+                                                          desc: ad.description,
+                                                          image: imageUrl,
+                                                          time: formattedDate,
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8.0),
+                                                      child: Image.network(
+                                                        "$url/uploads/$imageUrl",
+                                                        fit: BoxFit.cover,
+                                                        width: double.infinity,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              )),
+                                          ).toList()
+                                              : <Widget>[],
+                                          options: CarouselOptions(
+                                            height: 156,
+                                            viewportFraction: 0.94,
+                                            enlargeCenterPage: true,
+                                            initialPage: 0,
+                                            enableInfiniteScroll: true,
+                                            reverse: true,
+                                            autoPlay: true,
+                                            autoPlayInterval: const Duration(seconds: 6),
+                                            autoPlayAnimationDuration: const Duration(seconds: 1),
+                                            autoPlayCurve: Curves.fastOutSlowIn,
+                                            scrollDirection: Axis.horizontal,
+                                            onPageChanged: (index, reason) {
+                                              currentIndex = index;
+                                              cubit.slid();
+                                            },
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 8,
+                                          left: 0,
+                                          right: 0,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: cubit.getAdsModel.asMap().entries.map((entry) {
+                                              return Container(
+                                                width: 8,
+                                                height: 7.0,
+                                                margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  color: currentIndex == entry.key
+                                                      ? primaryColor.withOpacity(0.8)
+                                                      : Colors.white,
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  fallback: (c)=> Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 60.0),
+                                    child: Container(),
                                   ),
                                 ),
                                 SizedBox(height: 8,),

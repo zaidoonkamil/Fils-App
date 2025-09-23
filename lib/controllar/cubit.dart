@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fils/controllar/states.dart';
+import 'package:fils/model/GetAdsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -28,16 +29,30 @@ class AppCubit extends Cubit<AppStates> {
 
   static AppCubit get(context) => BlocProvider.of(context);
 
+  Future<void> playAnimation() async {
+    for (double i = 0; i <= 1; i += 0.1) {
+      emit(AnimationScaleState(i));
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+
+    await Future.delayed(const Duration(milliseconds: 900));
+
+    for (double i = 1; i >= 0; i -= 0.1) {
+      emit(AnimationScaleState(i));
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
   refreshState() {
     emit(SendSawaSuccessState());
   }
 
-  bool typeOfCash = true;
-
-  void funTypeOfCash() {
-    typeOfCash = !typeOfCash;
+  int typeOfCash = 0;
+  void funTypeOfCash(int selected) {
+    typeOfCash = selected;
     emit(ValidationState());
   }
+
 
   bool isPasswordHidden = true;
 
@@ -323,6 +338,10 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
+  void slid(){
+    emit(ValidationState());
+  }
+
   String? time;
 
   void timeOfDay({required BuildContext context}) {
@@ -343,8 +362,28 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  ProfileModel? profileModel;
+  List<GetAds> getAdsModel = [];
+  void getAds({required BuildContext context,}) {
+    emit(GetAdsLoadingState());
+    DioHelper.getData(
+      url: '/ads',
+    ).then((value) {
+      getAdsModel = (value.data as List)
+          .map((item) => GetAds.fromJson
+        (item as Map<String, dynamic>)).toList();
+      emit(GetAdsSuccessState());
+    }).catchError((error) {
+      if (error is DioError) {
+        showToastError(text: error.toString(), context: context,);
+        print(error.toString());
+        emit(GetAdsErrorStates());
+      }else {
+        print("Unknown Error: $error");
+      }
+    });
+  }
 
+  ProfileModel? profileModel;
   void getProfile({required BuildContext context,}) {
     emit(GetProfileLoadingState());
     DioHelper.getData(

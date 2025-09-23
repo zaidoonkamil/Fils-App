@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 1500), () {
       Widget? widget;
       if(CacheHelper.getData(key: 'token') == null){
         token='';
@@ -70,11 +70,23 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: SizedBox(
                   width: double.maxFinite,
                   height: double.maxFinite,
-                  child: Center(child:
-                  Image.asset('assets/images/Logo (1).png',width: 300,),
+                  child: Center(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.5),
+                      duration: const Duration(seconds: 1),
+                      curve: Curves.easeOutBack,
+                      builder: (context, scale, child) {
+                        return Transform.scale(
+                          scale: scale,
+                          child: child,
+                        );
+                      },
+                      child: Image.asset('assets/images/Logo (1).png',),
+                    ),
                   ),
                 ),
-              ),
+              )
+
             ],
           ),
         ),

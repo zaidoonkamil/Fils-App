@@ -9,6 +9,7 @@ import 'package:fils/core/widgets/show_toast.dart';
 import 'package:fils/view/user/counter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 
 class TimerScreen extends StatelessWidget {
@@ -40,7 +41,7 @@ class TimerScreen extends StatelessWidget {
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 8),
-                        margin: const EdgeInsets.symmetric(horizontal: 20,),
+                        margin: const EdgeInsets.symmetric(horizontal: 40,),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -64,34 +65,16 @@ class TimerScreen extends StatelessWidget {
                         builder: (c){
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Column(
+                        child: Stack(
                           children: [
-                            Container(
-                              width: double.maxFinite,
-                              height: 180,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: primaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Container(
-                                width: double.maxFinite,
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
-                                    width: 5,
-                                  ),
-                                ),
-                                child: Container(
+                            Center(child: Lottie.asset('assets/lottie/Cryptocurrency Lottie Animation.json',height: 300)),
+                            Column(
+                              children: [
+                                Container(
                                   width: double.maxFinite,
-                                  height: 180,
+                                  height: 300,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
+                                    shape: BoxShape.circle,
                                     border: Border.all(
                                       color: secoundColor,
                                       width: 2,
@@ -105,14 +88,14 @@ class TimerScreen extends StatelessWidget {
                                       Container(
                                         padding: EdgeInsets.symmetric(horizontal: 12,vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: primaryColor.withOpacity(0.1),
+                                          color: secoundColor.withOpacity(0.3),
                                           borderRadius: BorderRadius.circular(8),
                                           border: Border.all(
-                                            color: primaryColor,
+                                            color: secoundColor,
                                             width: 2,
                                           ),
                                         ),
-                                        child: Text(cubit.remainingTime!,style: TextStyle(color: primaryColor,fontSize: 20),),
+                                        child: Text(cubit.remainingTime!,style: TextStyle(color: secoundColor,fontSize: 20),),
                                       ),
                                       SizedBox(height: 10,),
                                       Container(width: 80,height: 2,color: Colors.black,),
@@ -129,112 +112,112 @@ class TimerScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              ),
-                            ),
-                            SizedBox(height: 24,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                cubit.profileModel!.totalPoints != 0? Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.blue.withOpacity(0.2),
-                                      border: Border.all(
-                                          color: Colors.blue
-                                      )
-                                  ),
-                                  child: Row(
-                                    children: [
-                                     Text('فلس',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                      Text(cubit.profileModel!.totalPoints.toString(),
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                    ],
-                                  ),
-                                ):Container(),
-                                SizedBox(width: 10,),
-                                cubit.profileModel!.totalGems != 0? Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.blue.withOpacity(0.2),
-                                      border: Border.all(
-                                          color: Colors.blue
+                                SizedBox(height: 24,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    cubit.profileModel!.totalPoints != 0? Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: Colors.blue.withOpacity(0.2),
+                                          border: Border.all(
+                                              color: Colors.blue
+                                          )
                                       ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text('جوهرة',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                      Text('${cubit.profileModel!.totalGems + 30}'.toString(),
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                    ],
-                                  ),
+                                      child: Row(
+                                        children: [
+                                         Text('فلس',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                          Text(cubit.profileModel!.totalPoints.toString(),
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                        ],
+                                      ),
+                                    ):Container(),
+                                    SizedBox(width: 10,),
+                                    cubit.profileModel!.totalGems != 0? Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: Colors.blue.withOpacity(0.2),
+                                          border: Border.all(
+                                              color: Colors.blue
+                                          ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text('جوهرة',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                          Text('${cubit.profileModel!.totalGems + 30}'.toString(),
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                        ],
+                                      ),
+                                    ):
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: Colors.blue.withOpacity(0.2),
+                                          border: Border.all(
+                                              color: Colors.blue
+                                          )
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text('جوهرة',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                          Text('30',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: 10,),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: Colors.blue.withOpacity(0.2),
+                                          border: Border.all(
+                                              color: Colors.blue
+                                          )
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text('بطاقة',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                          Text('1',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.blue),),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 24,),
+                                cubit.canDoAction == true? GestureDetector(
+                                  onTap:(){
+                                    cubit.sumDaly( context: context);
+                                  },
+                                  child: Image.asset('assets/images/Sign-in Button (7).png')
                                 ):
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.blue.withOpacity(0.2),
-                                      border: Border.all(
-                                          color: Colors.blue
-                                      )
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text('جوهرة',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                      Text('30',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                    ],
-                                  ),
+                                GestureDetector(
+                                  onTap:(){
+                                    showToastError(text: ' يمكنك المحاولة مجددا بعد ${cubit.remainingTime!} ', context: context);
+                                  },
+                                  child: Image.asset('assets/images/Sign-in Button (8).png')
                                 ),
-                                SizedBox(width: 10,),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10,vertical: 6),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.blue.withOpacity(0.2),
-                                      border: Border.all(
-                                          color: Colors.blue
-                                      )
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text('بطاقة',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                      Text('1',
-                                        textAlign: TextAlign.end,
-                                        style: TextStyle(fontSize: 14,color: Colors.blue),),
-                                    ],
-                                  ),
-                                ),
+                                SizedBox(height: 8,),
+                                Text('يمكنك ترقية العداد لزيادة المكافأت', textAlign: TextAlign.end, style: TextStyle(fontSize: 16,color: Colors.blue),),
+                                SizedBox(height: 24,),
                               ],
                             ),
-                            SizedBox(height: 24,),
-                            cubit.canDoAction == true? GestureDetector(
-                              onTap:(){
-                                cubit.sumDaly( context: context);
-                              },
-                              child: Image.asset('assets/images/Sign-in Button (7).png')
-                            ):
-                            GestureDetector(
-                              onTap:(){
-                                showToastError(text: ' يمكنك المحاولة مجددا بعد ${cubit.remainingTime!} ', context: context);
-                              },
-                              child: Image.asset('assets/images/Sign-in Button (8).png')
-                            ),
-                            SizedBox(height: 8,),
-                            Text('يمكنك ترقية العداد لزيادة المكافأت', textAlign: TextAlign.end, style: TextStyle(fontSize: 16,color: Colors.blue),),
-                            SizedBox(height: 24,),
                           ],
                         ),
                       );

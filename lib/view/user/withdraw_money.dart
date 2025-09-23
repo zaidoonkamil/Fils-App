@@ -43,12 +43,12 @@ class WithdrawMoney extends StatelessWidget {
                       AppbarBack(),
                       SizedBox(height: 40,),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 8),
                         margin: const EdgeInsets.symmetric(horizontal: 20,),
                         width: double.maxFinite,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(60),
                           border: Border.all(
                             color: Colors.deepOrangeAccent.withOpacity(0.5),
                             width: 2,
@@ -74,7 +74,7 @@ class WithdrawMoney extends StatelessWidget {
                                 SizedBox(width: 6,),
                                 Container(
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(30),
                                         color: Colors.deepOrangeAccent.withOpacity(0.2)
                                     ),
                                     padding: EdgeInsets.all(10),
@@ -118,7 +118,7 @@ class WithdrawMoney extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: ()  {
-                          cubit.funTypeOfCash();
+                          cubit.funTypeOfCash(1);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
@@ -128,9 +128,9 @@ class WithdrawMoney extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color:cubit.typeOfCash == true?
-                              Colors.grey.withOpacity(0.5)
-                                  : primaryColor.withOpacity(0.5),
+                              color:cubit.typeOfCash == 1?
+                              primaryColor.withOpacity(0.5)
+                                  : Colors.grey.withOpacity(0.5) ,
                               width: 2,
                             ),
                             boxShadow: [
@@ -183,7 +183,7 @@ class WithdrawMoney extends StatelessWidget {
                       SizedBox(height: 10,),
                       GestureDetector(
                         onTap: ()  {
-                          cubit.funTypeOfCash();
+                          cubit.funTypeOfCash(2);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
@@ -193,7 +193,7 @@ class WithdrawMoney extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color:cubit.typeOfCash == true?
+                              color:cubit.typeOfCash == 2?
                                 primaryColor.withOpacity(0.5):
                               Colors.grey.withOpacity(0.5),
                               width: 2,
@@ -239,6 +239,71 @@ class WithdrawMoney extends StatelessWidget {
                                   ),
                                   SizedBox(width: 12,),
                                   Image.asset('assets/images/mastercard.png',width: 70,height: 70,)
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10,),
+                      GestureDetector(
+                        onTap: ()  {
+                          cubit.funTypeOfCash(3);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
+                          margin: const EdgeInsets.symmetric(horizontal: 20,),
+                          width: double.maxFinite,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color:cubit.typeOfCash == 3?
+                                primaryColor.withOpacity(0.5):
+                              Colors.grey.withOpacity(0.5),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: secoundColor.withOpacity(0.1),
+                                spreadRadius: 4,
+                                blurRadius: 5,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                      child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text('USDT',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(fontSize: 14,color: Colors.black),),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Expanded(
+                                            child: Text('USDT اسحب اموالك عن طريق',
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(fontSize: 12,color: Colors.black),),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                  ),
+                                  SizedBox(width: 12,),
+                                  Image.asset('assets/images/11a3582468209cea14a442d4078bf5f5 1 (1).png',width: 70,height: 70,)
                                 ],
                               ),
                             ],

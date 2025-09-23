@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:fils/core/%20navigation/navigation.dart';
-import 'package:fils/core/navigation_bar/navigation_bar.dart';
 import 'package:fils/core/widgets/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +18,7 @@ class LuckWheelPage extends StatelessWidget {
 
   final int myValue;
   final List<Map<String, dynamic>> items = [
-    {'key': 'try_again', 'image': 'assets/images/Sad-Face-Emoji-removebg-preview 1.png'},
+    {'key': '15', 'image': 'assets/images/mine_item_gift 3.png'},
     {'key': 'try_again', 'image': 'assets/images/Sad-Face-Emoji-removebg-preview 1.png'},
     {'key': '15', 'image': 'assets/images/lv101_frame_icon.png'},
     {'key': 'try_again', 'image': 'assets/images/Sad-Face-Emoji-removebg-preview 1.png'},
@@ -115,12 +113,14 @@ class LuckWheelPage extends StatelessWidget {
                       if(items[lastSelectedIndex!]['key'] != 'try_again') {
                         cubit.myValue -=10;
                         cubit.sendSawa(amount: items[lastSelectedIndex!]['key'], context: context);
+                        cubit.playAnimation();
                         animate = false;
                         cubit.refreshState();
                       } else {
                         cubit.myValue -=10;
                         cubit.updateGems(gems: cubit.myValue, context: context);
                         showToastInfo(text: 'حاول مرة اخرى', context: context);
+                        cubit.playAnimation();
                         animate = false;
                         cubit.refreshState();
                       }
@@ -134,7 +134,7 @@ class LuckWheelPage extends StatelessWidget {
                           ),
                           style: FortuneItemStyle(
                             textStyle: TextStyle(fontSize: 16),
-                            borderWidth: 3,
+                            borderWidth: 4,
                             borderColor: primaryColor,
                             color: secoundColor,
                           ),
@@ -157,6 +157,25 @@ class LuckWheelPage extends StatelessWidget {
               ],
             ),
             AppbarBack(),
+            Center(
+              child: BlocBuilder<AppCubit, AppStates>(
+                builder: (context, state) {
+                  double scale = 0;
+
+                  if (state is AnimationScaleState) {
+                    scale = state.scale;
+                  }
+
+                  return Transform.scale(
+                    scale: scale,
+                    child: Image.asset(
+                      'assets/images/screenshotttt.png',
+                    ),
+                  );
+                },
+              ),
+            ),
+
           ],
         ),
       ),
