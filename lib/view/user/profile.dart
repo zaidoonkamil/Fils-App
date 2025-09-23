@@ -9,6 +9,7 @@ import '../../../core/widgets/show_toast.dart';
 import '../../controllar/cubit.dart';
 import '../../controllar/states.dart';
 import '../../core/ navigation/navigation.dart';
+import 'chat.dart';
 import 'how_as.dart';
 
 class Profile extends StatelessWidget {
@@ -19,11 +20,7 @@ class Profile extends StatelessWidget {
     return BlocProvider(
       create: (BuildContext context) => AppCubit()..getProfile(context: context),
       child: BlocConsumer<AppCubit,AppStates>(
-        listener: (context,state){
-          if(state is GetProfileSuccessState){
-            print(id);
-          }
-        },
+        listener: (context,state){},
         builder: (context,state){
           var cubit=AppCubit.get(context);
           return SafeArea(
@@ -66,11 +63,7 @@ class Profile extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Stack(
-                                  children: [
-                                    Image.asset('assets/images/Sign-in Button (6).png',height: 80,),
-                                  ],
-                                ),
+                                Image.asset('assets/images/Sign-in Button (6).png',height: 80,),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -93,7 +86,6 @@ class Profile extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
                           );
@@ -221,7 +213,39 @@ class Profile extends StatelessWidget {
                               ],
                             ),
                           ),
-
+                          GestureDetector(
+                            onTap: (){
+                              navigateTo(context, Chat(userId: int.parse(id)));
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Icon(Icons.arrow_back_ios_new_rounded),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'تواصل مع الدعم',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4,),
+                                        Image.asset('assets/images/hugeicons_chat.png'),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 6,),
+                                Container(width: double.maxFinite,height: 2,color: Colors.black12,),
+                                SizedBox(height: 14,),
+                              ],
+                            ),
+                          ),
                           Column(
                             children: [
                               GestureDetector(

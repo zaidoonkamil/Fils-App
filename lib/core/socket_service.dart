@@ -31,8 +31,7 @@ class SocketService {
     _currentUserId = userId;
     _currentUserName = userName;
 
-    // استخدام HTTP لأن الخادم يعمل على HTTP
-    String socketUrl = 'https://fils.khaleeafashion.com';
+    String socketUrl = 'https://fils.khaleeafashion.com/rooms';
 
     print('Socket URL: $socketUrl');
     print('Token: ${token.substring(0, 10)}...');
