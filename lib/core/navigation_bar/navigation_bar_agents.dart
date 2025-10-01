@@ -46,13 +46,13 @@ class _BottomNavBarAdminState extends State<BottomNavBarAgents> {
             items: [
               BottomNavigationBarItem(
                 label: "الحساب",
-                icon:  currentIndex==0?Image.asset('assets/images/fluent_person-16-filled (1).png'):
-                Image.asset('assets/images/fluent_person-16-regular (1).png'),
+                icon:  currentIndex==0?Icon(Icons.person):
+                Icon(Icons.person_outlined),
               ),
               BottomNavigationBarItem(
                 label: "الرئيسية",
-                icon:  currentIndex==1?Image.asset('assets/images/si_home-fill.png'):
-                Image.asset('assets/images/si_home-line.png'),
+                icon:  currentIndex==1?Icon(Icons.home):
+                Icon(Icons.home_outlined),
               ),
             ],
             onTap: (val) {

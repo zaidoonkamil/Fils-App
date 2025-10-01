@@ -131,8 +131,7 @@ class AppCubit extends Cubit<AppStates> {
     }
   }
 
-  signUp(
-      {required String name, required String email, required String phone, required String location, required String password, required String role, required BuildContext context,}) async {
+  signUp({required String name, required String email, required String phone, required String location, required String password, required String role, required BuildContext context,}) async {
     emit(SignUpLoadingState());
     DioHelper.postData(
       url: '/users',
@@ -193,8 +192,7 @@ class AppCubit extends Cubit<AppStates> {
   String? email;
   bool? isVerified;
 
-  signIn(
-      {required String email, required String password, required String code, required BuildContext context,}) {
+  signIn({required String email, required String password, required String code, required BuildContext context,}) {
     emit(LoginLoadingState());
     Map<String, dynamic> data;
     if (code == '0') {

@@ -213,7 +213,7 @@ class Profile extends StatelessWidget {
                               ],
                             ),
                           ),
-                          GestureDetector(
+                          adminOrUser != 'agent'? GestureDetector(
                             onTap: (){
                               navigateTo(context, Chat(userId: int.parse(id)));
                             },
@@ -245,7 +245,7 @@ class Profile extends StatelessWidget {
                                 SizedBox(height: 14,),
                               ],
                             ),
-                          ),
+                          ):Container(),
                           Column(
                             children: [
                               GestureDetector(

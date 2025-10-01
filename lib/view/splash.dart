@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/ navigation/navigation.dart';
 import '../core/navigation_bar/navigation_bar.dart';
-import '../core/navigation_bar/navigation_bar_admin.dart';
 import '../core/navigation_bar/navigation_bar_agents.dart';
 import '../core/network/local/cache_helper.dart';
 import '../core/widgets/constant.dart';
@@ -31,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }else{
           adminOrUser = CacheHelper.getData(key: 'role');
           if (adminOrUser == 'admin') {
-            widget = BottomNavBarAdmin();
+        //    widget = BottomNavBarAdmin();
           } else if (adminOrUser == 'agent') {
             widget = BottomNavBarAgents();
           }else {

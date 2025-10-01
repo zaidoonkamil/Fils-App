@@ -10,7 +10,6 @@ import '../../../core/ navigation/navigation.dart';
 import '../../../core/styles/themes.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../core/navigation_bar/navigation_bar.dart';
-import '../../core/navigation_bar/navigation_bar_admin.dart';
 import '../../core/navigation_bar/navigation_bar_agents.dart';
 import '../../core/network/local/cache_helper.dart';
 import '../../core/widgets/show_toast.dart';
@@ -49,7 +48,7 @@ class Login extends StatelessWidget {
                   id = AppCubit.get(context).idd.toString();
                   adminOrUser = AppCubit.get(context).role.toString();
                   if (adminOrUser == 'admin') {
-                    navigateAndFinish(context, BottomNavBarAdmin());
+                  //  navigateAndFinish(context, BottomNavBarAdmin());
                   }else if (adminOrUser == 'agent') {
                     navigateAndFinish(context, BottomNavBarAgents());
                   } else {

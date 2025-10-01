@@ -52,7 +52,6 @@ class HomeAgents extends StatelessWidget {
                                     padding: EdgeInsets.symmetric(horizontal: 20),
                                     child: Stack(
                                       children: [
-                                        Image.asset('assets/images/Group 1171275635.png'),
                                         SizedBox(
                                           height: 150,
                                           child: Column(
@@ -68,9 +67,9 @@ class HomeAgents extends StatelessWidget {
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: [
-                                                  Text('كوينز ',style: TextStyle(color: Colors.white,fontSize: 20),),
-                                                  Text(cubit.profileModel!.sawa.toString(),style: TextStyle(color: Colors.white,fontSize: 20),),
-                                                  Image.asset('assets/images/logo.png',width: 40,height: 40,),
+                                                  Text('كوينز ',style: TextStyle(fontSize: 20),),
+                                                  Text(cubit.profileModel!.sawa.toString(),style: TextStyle(fontSize: 20),),
+                                                  Image.asset('assets/images/Sign-in Button (6).png',width: 40,height: 40,),
                                                 ],
                                               ),
                                             ],
