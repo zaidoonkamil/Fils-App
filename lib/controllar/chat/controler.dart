@@ -58,7 +58,6 @@ class ChatCubit extends Cubit<ChatState> {
     });
 
     socket.on('newMessage', (data) {
-      // تحديث الرسائل فورًا
       messages = List.from(messages)..add(data);
       emit(ChatLoaded(messages));
     });
@@ -94,17 +93,17 @@ class ChatCubit extends Cubit<ChatState> {
       'message': text.trim(),
     };
 
-    final localMessage = {
-      'senderId': userId,
-      'receiverId': receiverId,
-      'message': text.trim(),
-      'sender': {'id': userId, 'name': 'أنت', 'role': 'user'},
-      'receiver': receiverId != null ? {'id': receiverId} : null,
-      'createdAt': DateTime.now().toIso8601String(),
-    };
-
-    messages = List.from(messages)..add(localMessage);
-    emit(ChatLoaded(messages));
+    // final localMessage = {
+    //   'senderId': userId,
+    //   'receiverId': receiverId,
+    //   'message': text.trim(),
+    //   'sender': {'id': userId, 'name': 'أنت', 'role': 'user'},
+    //   'receiver': receiverId != null ? {'id': receiverId} : null,
+    //   'createdAt': DateTime.now().toIso8601String(),
+    // };
+    //
+    // messages = List.from(messages)..add(localMessage);
+    // emit(ChatLoaded(messages));
 
     socket.emit('sendMessage', messageData);
   }

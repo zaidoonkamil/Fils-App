@@ -809,6 +809,123 @@ class AppCubitAdmin extends Cubit<AppStatesAdmin> {
     }
   }
 
+  // Room Settings Management
+  Future<void> getRoomSettings() async {
+    try {
+      // جلب إعدادات الغرف
+      await getAllSettings();
+
+      // الحصول على إعدادات الغرف المحددة
+      final roomCostSetting = settings.firstWhere(
+        (setting) => setting.key == 'room_creation_cost',
+        orElse:
+            () => AdminSettingsModel(
+              id: 0,
+              key: 'room_creation_cost',
+              value: '10',
+              description: 'تكلفة إنشاء غرفة جديدة',
+              isActive: true,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+      );
+
+      final maxUsersSetting = settings.firstWhere(
+        (setting) => setting.key == 'room_max_users',
+        orElse:
+            () => AdminSettingsModel(
+              id: 0,
+              key: 'room_max_users',
+              value: '50',
+              description: 'الحد الأقصى للمستخدمين في الغرفة',
+              isActive: true,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+      );
+
+      // إضافة الإعدادات إذا لم تكن موجودة
+      if (!settings.any((s) => s.key == 'room_creation_cost')) {
+        settings.add(roomCostSetting);
+      }
+      if (!settings.any((s) => s.key == 'room_max_users')) {
+        settings.add(maxUsersSetting);
+      }
+    } catch (e) {
+      print('Get Room Settings Error: $e');
+    }
+  }
+
+  Future<void> updateRoomSettings({
+    required int creationCost,
+    required int maxUsers,
+  }) async {
+    try {
+      final response = await DioHelper.postData(
+        url: '/admin/room-settings',
+        data: {'creation_cost': creationCost, 'max_users': maxUsers},
+        token: adminToken,
+      );
+
+      if (response.statusCode == 200) {
+        // تحديث الإعدادات المحلية
+        final roomCostIndex = settings.indexWhere(
+          (s) => s.key == 'room_creation_cost',
+        );
+        if (roomCostIndex != -1) {
+          settings[roomCostIndex] = AdminSettingsModel(
+            id: settings[roomCostIndex].id,
+            key: 'room_creation_cost',
+            value: creationCost.toString(),
+            description: 'تكلفة إنشاء غرفة جديدة',
+            isActive: settings[roomCostIndex].isActive,
+            createdAt: settings[roomCostIndex].createdAt,
+            updatedAt: DateTime.now(),
+          );
+        }
+
+        final maxUsersIndex = settings.indexWhere(
+          (s) => s.key == 'room_max_users',
+        );
+        if (maxUsersIndex != -1) {
+          settings[maxUsersIndex] = AdminSettingsModel(
+            id: settings[maxUsersIndex].id,
+            key: 'room_max_users',
+            value: maxUsers.toString(),
+            description: 'الحد الأقصى للمستخدمين في الغرفة',
+            isActive: settings[maxUsersIndex].isActive,
+            createdAt: settings[maxUsersIndex].createdAt,
+            updatedAt: DateTime.now(),
+          );
+        }
+
+        emit(AdminUpdateRoomSettingsSuccessState());
+      } else {
+        emit(AdminUpdateRoomSettingsErrorState());
+      }
+    } catch (e) {
+      print('Update Room Settings Error: $e');
+      emit(AdminUpdateRoomSettingsErrorState());
+    }
+  }
+
+  // Helper Methods
+  String getSettingValue(String key, String defaultValue) {
+    final setting = settings.firstWhere(
+      (s) => s.key == key,
+      orElse:
+          () => AdminSettingsModel(
+            id: 0,
+            key: key,
+            value: defaultValue,
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+    );
+    return setting.value;
+  }
+
   // Logout
   Future<void> logout() async {
     if (currentAdmin != null) {

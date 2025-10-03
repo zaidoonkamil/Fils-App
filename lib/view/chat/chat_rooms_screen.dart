@@ -1,3 +1,4 @@
+import 'package:fils/core/%20navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../controllar/cubit.dart';
@@ -14,7 +15,6 @@ class ChatRoomsScreen extends StatelessWidget {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {
         if (state is ChatRoomsErrorState) {
-          // تم التعامل مع الخطأ في Cubit
         }
       },
       builder: (context, state) {
@@ -33,7 +33,6 @@ class ChatRoomsScreen extends StatelessWidget {
           ),
           body: Column(
             children: [
-              // فلاتر الغرف
               Container(
                 padding: EdgeInsets.all(16),
                 child: Row(
@@ -61,8 +60,6 @@ class ChatRoomsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
-              // قائمة الغرف
               Expanded(
                 child: state is ChatRoomsLoadingState
                     ? Center(child: CircularProgressIndicator())
@@ -81,10 +78,7 @@ class ChatRoomsScreen extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CreateRoomScreen()),
-              );
+              navigateTo(context, CreateRoomScreen());
             },
             child: Icon(Icons.add),
             tooltip: 'إنشاء غرفة جديدة',
@@ -106,14 +100,8 @@ class RoomCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          // الانضمام إلى الغرفة
           AppCubit.get(context).joinRoom(room.id);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatRoomScreen(room: room),
-            ),
-          );
+          navigateTo(context, ChatRoomScreen(room: room),);
         },
         child: Padding(
           padding: EdgeInsets.all(16),

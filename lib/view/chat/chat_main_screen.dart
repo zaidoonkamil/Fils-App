@@ -1,12 +1,12 @@
+import 'package:fils/core/%20navigation/navigation.dart';
 import 'package:fils/core/styles/themes.dart';
+import 'package:fils/core/widgets/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../controllar/cubit.dart';
 import '../../controllar/states.dart';
-import '../../core/socket_service.dart';
 import '../../core/widgets/appBar.dart';
 import '../../model/RoomModel.dart';
-import 'chat_rooms_screen.dart';
 import 'create_room_screen.dart';
 import 'chat_room_screen.dart';
 
@@ -21,7 +21,6 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
   @override
   void initState() {
     super.initState();
-    // تهيئة Socket.IO عند فتح شاشة الدردشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppCubit.get(context).initializeSocket();
       AppCubit.get(context).getRooms();
@@ -30,7 +29,6 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
 
   @override
   void dispose() {
-    // قطع الاتصال عند الخروج من الشاشة
     AppCubit.get(context).disconnectSocket();
     super.dispose();
   }
@@ -40,7 +38,6 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {
         if (state is ChatRoomsErrorState) {
-          // تم التعامل مع الخطأ في Cubit
         }
       },
       builder: (context, state) {
@@ -48,7 +45,7 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
           child: Scaffold(
             body: Column(
               children: [
-                AppbarBack(),
+               adminOrUser =='user'?AppbarBack(): Container(),
                 SizedBox(height: 16,),
                 Container(
                   padding: EdgeInsets.all(16),
@@ -130,10 +127,7 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
             floatingActionButton: FloatingActionButton.extended(
               backgroundColor: secoundColor,
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CreateRoomScreen()),
-                );
+                navigateTo(context, CreateRoomScreen());
               },
               icon: Icon(Icons.add,color: Colors.white,),
               label: Text('إنشاء غرفة',style: TextStyle(color: Colors.white),),
@@ -207,13 +201,21 @@ class _ChatMainScreenState extends State<ChatMainScreen> {
       margin: EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          AppCubit.get(context).joinRoom(room.id);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatRoomScreen(room: room),
-            ),
-          );
+          if(adminOrUser != 'user'){
+            AppCubit.get(context).joinRoom(room.id);
+            navigateTo(
+              context,
+              BlocProvider.value(
+                value: AppCubit.get(context),
+                child: ChatRoomScreen(room: room),
+              ),
+            );
+
+          }else{
+            AppCubit.get(context).joinRoom(room.id);
+            navigateTo(context, ChatRoomScreen(room: room),);
+          }
+
         },
         child: Padding(
           padding: EdgeInsets.all(16),

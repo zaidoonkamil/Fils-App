@@ -1087,10 +1087,13 @@ class AppCubit extends Cubit<AppStates> {
   List<Map<String, dynamic>> roomUsers = [];
   bool isTyping = false;
   String? typingUser;
+  Map<String, dynamic>? getRoomSettings;
 
-  // تهيئة Socket.IO
   void initializeSocket() {
-      SocketService.initialize(token, int.parse(id), email ?? 'مستخدم');
+      SocketService.initialize(
+          adminOrUser=='user'?token:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMTQsImVtYWlsIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTkzOTg3NTgsImV4cCI6MTc4OTYzODc1OH0.Yc7kMcFS-C4VB2wjwblDFB4xqr2ez1cfHX2LihgTbZk',
+          int.parse(adminOrUser=='user'?id:'10014'), email ?? 'مستخدم');
       SocketService.onConnected = (message) {
         print('Socket connected: $message');
       };
@@ -1145,6 +1148,25 @@ class AppCubit extends Cubit<AppStates> {
       SocketService.connect();
 
   }
+
+  void fetchRoomSettings({BuildContext? context}) async {
+    emit(ChatRoomSettingsLoadingState());
+
+    final response = await ChatService.getRoomSettings();
+
+    if (response['success'] == true) {
+      getRoomSettings = response['data'];
+      print("DEBUG getRoomSettings: $getRoomSettings");
+      emit(ChatRoomSettingsSuccessState());
+    } else {
+      if (context != null) {
+        showToastError(text: response['error'], context: context);
+      }
+      emit(ChatRoomSettingsErrorState());
+    }
+  }
+
+
 
   // جلب الغرف المتوفرة
   void getRooms({String? category, int page = 1, BuildContext? context}) async {
@@ -1261,7 +1283,7 @@ class AppCubit extends Cubit<AppStates> {
 
     if (result['success']) {
       showToastSuccess(text: result['data']['message'], context: context);
-      getRooms(); // تحديث قائمة الغرف
+      getRooms();
       emit(ChatDeleteRoomSuccessState());
     } else {
       showToastError(text: result['error'], context: context);

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../controllar/cubit.dart';
 import '../../controllar/states.dart';
 import '../../core/widgets/appBar.dart';
-import '../../model/RoomModel.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   const CreateRoomScreen({Key? key}) : super(key: key);
@@ -13,12 +12,21 @@ class CreateRoomScreen extends StatefulWidget {
 }
 
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _costController = TextEditingController();
   final _maxUsersController = TextEditingController(text: '50');
   String _selectedCategory = 'general';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppCubit.get(context).fetchRoomSettings();
+    });
+  }
 
   @override
   void dispose() {
@@ -38,6 +46,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         }
       },
       builder: (context, state) {
+        var cubit=AppCubit.get(context);
         return SafeArea(
           child: Scaffold(
             body: Column(
@@ -55,7 +64,6 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                             textAlign: TextAlign.right,
                             textDirection: TextDirection.rtl,
                             decoration: InputDecoration(
-                        //      floatingLabelAlignment: FloatingLabelAlignment.center,
                               labelText: 'اسم الغرفة',
                               hintTextDirection: TextDirection.rtl,
                               border: OutlineInputBorder(),
@@ -69,7 +77,6 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                             },
                           ),
                           SizedBox(height: 16),
-
                           TextFormField(
                             textAlign: TextAlign.right,
                             textDirection: TextDirection.rtl,
@@ -89,107 +96,58 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                             },
                           ),
                           SizedBox(height: 16),
-
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Expanded(
-                                child: TextFormField(
+                              if (state is ChatRoomSettingsLoadingState)
+                                Center(child: CircularProgressIndicator())
+                              else if (state is ChatRoomSettingsSuccessState && cubit.getRoomSettings != null) ...[
+                                Text(
+                                  cubit.getRoomSettings!['room_creation_cost'] == 0
+                                      ? "تكلفة إنشاء الغرفة: مجاناً"
+                                      : "تكلفة إنشاء الغرفة: ${cubit.getRoomSettings!['room_creation_cost']} نقطة",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
                                   textAlign: TextAlign.right,
-                                  textDirection: TextDirection.rtl,
-                                  controller: _costController,
-                                  decoration: InputDecoration(
-                                    floatingLabelAlignment: FloatingLabelAlignment.center,
-                                    labelText: 'تكلفة إنشاء الغرفة (نقاط)',
-                                    border: OutlineInputBorder(),
-                                    suffixIcon: Icon(Icons.diamond, color: Colors.amber),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'يرجى إدخال التكلفة';
-                                    }
-                                    if (int.tryParse(value) == null) {
-                                      return 'يرجى إدخال رقم صحيح';
-                                    }
-                                    return null;
-                                  },
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: TextFormField(
+                                SizedBox(height: 8),
+                                Text(
+                                  "الحد الأقصى للمستخدمين: ${cubit.getRoomSettings!['room_max_users']}",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
                                   textAlign: TextAlign.right,
-                                  textDirection: TextDirection.rtl,
-                                  controller: _maxUsersController,
-                                  decoration: InputDecoration(
-                                    floatingLabelAlignment: FloatingLabelAlignment.center,
-                                    labelText: 'الحد الأقصى للمستخدمين',
-                                    border: OutlineInputBorder(),
-                                    suffixIcon: Icon(Icons.people),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'يرجى إدخال الحد الأقصى';
-                                    }
-                                    final maxUsers = int.tryParse(value);
-                                    if (maxUsers == null || maxUsers < 1 || maxUsers > 100) {
-                                      return 'يرجى إدخال رقم بين 1 و 100';
-                                    }
-                                    return null;
-                                  },
                                 ),
-                              ),
+                              ] else if (state is ChatRoomSettingsErrorState) ...[
+                                Text(
+                                  "حدث خطأ في جلب البيانات",
+                                  style: TextStyle(color: Colors.red, fontSize: 14),
+                                ),
+                              ],
                             ],
-                          ),
-                          SizedBox(height: 16),
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              floatingLabelAlignment: FloatingLabelAlignment.center,
-                              labelText: 'فئة الغرفة',
-                              border: OutlineInputBorder(),
-                              suffixIcon: Icon(Icons.category),
-                            ),
-                            value: _selectedCategory,
-                            items: [
-                              DropdownMenuItem(value: 'general', child: Text('عام')),
-                              DropdownMenuItem(value: 'gaming', child: Text('ألعاب')),
-                              DropdownMenuItem(value: 'music', child: Text('موسيقى')),
-                              DropdownMenuItem(value: 'sports', child: Text('رياضة')),
-                              DropdownMenuItem(value: 'technology', child: Text('تقنية')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value!;
-                              });
-                            },
                           ),
                           SizedBox(height: 24),
-
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: state is ChatCreateRoomLoadingState
+                              onPressed: (state is ChatCreateRoomLoadingState || cubit.getRoomSettings == null)
                                   ? null
                                   : () {
-                                      if (_formKey.currentState!.validate()) {
-                                        AppCubit.get(context).createRoom(
-                                          name: _nameController.text,
-                                          description: _descriptionController.text,
-                                          cost: int.parse(_costController.text),
-                                          maxUsers: int.parse(_maxUsersController.text),
-                                          category: _selectedCategory,
-                                          context: context,
-                                        );
-                                      }
-                                    },
+                                if (_formKey.currentState!.validate()) {
+                                  AppCubit.get(context).createRoom(
+                                    name: _nameController.text,
+                                    description: _descriptionController.text,
+                                    cost: cubit.getRoomSettings!['room_creation_cost'],
+                                    maxUsers: cubit.getRoomSettings!['room_max_users'],
+                                    category: _selectedCategory,
+                                    context: context,
+                                  );
+                                }
+                              },
                               child: state is ChatCreateRoomLoadingState
                                   ? CircularProgressIndicator(color: Colors.white)
                                   : Text(
-                                      'إنشاء الغرفة',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
+                                'إنشاء الغرفة',
+                                style: TextStyle(fontSize: 16),
+                              ),
                             ),
                           ),
                         ],

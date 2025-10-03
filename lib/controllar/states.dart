@@ -159,6 +159,10 @@ class ChatRoomsLoadingState extends AppStates {}
 class ChatRoomsSuccessState extends AppStates {}
 class ChatRoomsErrorState extends AppStates {}
 
+class ChatRoomSettingsLoadingState extends AppStates {}
+class ChatRoomSettingsSuccessState extends AppStates {}
+class ChatRoomSettingsErrorState extends AppStates {}
+
 class ChatCreateRoomLoadingState extends AppStates {}
 class ChatCreateRoomSuccessState extends AppStates {}
 class ChatCreateRoomErrorState extends AppStates {}

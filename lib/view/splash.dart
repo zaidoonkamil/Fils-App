@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
         token = CacheHelper.getData(key: 'token') ;
         id = CacheHelper.getData(key: 'id') ??'' ;
       }
-      navigateAndFinish(context, widget);
+      navigateAndFinish(context, widget!);
     });
     super.initState();
   }

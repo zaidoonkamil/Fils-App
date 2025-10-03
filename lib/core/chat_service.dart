@@ -10,7 +10,7 @@ class ChatService {
   static String? _token;
 
   static void setToken(String token) {
-    _token = token;
+    _token = adminOrUser=='user'?token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMTQsImVtYWlsIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTkzOTg3NTgsImV4cCI6MTc4OTYzODc1OH0.Yc7kMcFS-C4VB2wjwblDFB4xqr2ez1cfHX2LihgTbZk';
   }
 
   static Map<String, String> get _headers {
@@ -66,10 +66,9 @@ class ChatService {
   static Future<Map<String, dynamic>> getRooms({
     String? category,
     int page = 1,
-    int limit = 10,
   }) async {
     try {
-      String url = '$baseUrl/rooms?page=$page&limit=$limit';
+      String url = '$baseUrl/rooms?page=$page';
       if (category != null) {
         url += '&category=$category';
       }
@@ -80,7 +79,8 @@ class ChatService {
       );
 
       final data = jsonDecode(response.body);
-      
+      print('getRooms response body: ${response.body}');
+
       if (response.statusCode == 200) {
         return {
           'success': true,
@@ -90,6 +90,38 @@ class ChatService {
         return {
           'success': false,
           'error': data['error'] ?? 'خطأ في جلب الغرف',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'خطأ في الاتصال: $e',
+      };
+    }
+  }
+
+  // جلب إعدادات الغرف
+  static Future<Map<String, dynamic>> getRoomSettings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/room-settings'),
+        headers: _headers,
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'data': {
+            'room_creation_cost': data['room_creation_cost'],
+            'room_max_users': data['room_max_users'],
+          },
+        };
+      } else {
+        return {
+          'success': false,
+          'error': data['error'] ?? 'خطأ في جلب الإعدادات',
         };
       }
     } catch (e) {
@@ -129,15 +161,14 @@ class ChatService {
     }
   }
 
-  // جلب رسائل غرفة معينة
   static Future<Map<String, dynamic>> getRoomMessages(
     int roomId, {
     int page = 1,
-    int limit = 50,
+ //   int limit = 30,
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/room/$roomId/messages?page=$page&limit=$limit'),
+        Uri.parse('$baseUrl/room/$roomId/messages?page=$page'),
         headers: _headers,
       );
 

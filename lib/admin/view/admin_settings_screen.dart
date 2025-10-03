@@ -1,4 +1,4 @@
-import 'package:fils/core/%20navigation/navigation.dart';
+import 'package:fils/core/ navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fils/admin/controllar/cubit.dart';
@@ -14,10 +14,17 @@ class AdminSettingsScreen extends StatefulWidget {
 
 class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _roomCostFormKey = GlobalKey<FormState>();
   final _keyController = TextEditingController();
   final _valueController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  // Room settings controllers
+  final _roomCreationCostController = TextEditingController();
+  final _roomMaxUsersController = TextEditingController();
+
   bool _isEditing = false;
+  bool _showRoomSettings = false;
 
   @override
   void initState() {
@@ -25,6 +32,20 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppCubitAdmin>().getAllSettings();
     });
+    _loadRoomSettings();
+  }
+
+  void _loadRoomSettings() async {
+    await context.read<AppCubitAdmin>().getRoomSettings();
+    final cubit = context.read<AppCubitAdmin>();
+
+    if (mounted) {
+      final roomCost = cubit.getSettingValue('room_creation_cost', '10');
+      final maxUsers = cubit.getSettingValue('room_max_users', '50');
+
+      _roomCreationCostController.text = roomCost;
+      _roomMaxUsersController.text = maxUsers;
+    }
   }
 
   @override
@@ -32,6 +53,8 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     _keyController.dispose();
     _valueController.dispose();
     _descriptionController.dispose();
+    _roomCreationCostController.dispose();
+    _roomMaxUsersController.dispose();
     super.dispose();
   }
 
@@ -58,6 +81,16 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             _descriptionController.text.trim().isEmpty
                 ? null
                 : _descriptionController.text.trim(),
+      );
+    }
+  }
+
+  void _submitRoomSettings() {
+    if (_roomCostFormKey.currentState!.validate()) {
+      context.read<AppCubitAdmin>().updateRoomSettings(
+        creationCost:
+            int.tryParse(_roomCreationCostController.text.trim()) ?? 10,
+        maxUsers: int.tryParse(_roomMaxUsersController.text.trim()) ?? 50,
       );
     }
   }
@@ -96,20 +129,45 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _clearForm();
-                    showDialog(
-                      context: context,
-                      builder: (context) => _buildAddEditDialog(),
-                    );
-                  },
-                  icon: const Icon(Icons.add,color: Colors.white,),
-                  label: const Text('إضافة إعداد جديد'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
-                    foregroundColor: Colors.white,
-                  ),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showRoomSettings = !_showRoomSettings;
+                        });
+                      },
+                      icon: Icon(
+                        _showRoomSettings ? Icons.visibility_off : Icons.chat,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        _showRoomSettings
+                            ? 'إخفاء إعدادات الغرف'
+                            : 'عرض إعدادات الغرف',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[600],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        _clearForm();
+                        showDialog(
+                          context: context,
+                          builder: (context) => _buildAddEditDialog(),
+                        );
+                      },
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text('إضافة إعداد جديد'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[600],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
                   'إدارة الإعدادات',
@@ -121,6 +179,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
               ],
             ),
+            if (_showRoomSettings) ...[
+              const SizedBox(height: 20),
+              _buildRoomSettingsCard(),
+            ],
             const SizedBox(height: 24),
             Expanded(
               child: BlocBuilder<AppCubitAdmin, AppStatesAdmin>(
@@ -139,7 +201,11 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           const Text('خطأ في تحميل الإعدادات'),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () => context.read<AppCubitAdmin>().getAllSettings(),
+                            onPressed:
+                                () =>
+                                    context
+                                        .read<AppCubitAdmin>()
+                                        .getAllSettings(),
                             child: const Text('إعادة المحاولة'),
                           ),
                         ],
@@ -228,17 +294,19 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: setting.isActive
-                                            ? Colors.green[100]
-                                            : Colors.red[100],
+                                        color:
+                                            setting.isActive
+                                                ? Colors.green[100]
+                                                : Colors.red[100],
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
                                         setting.isActive ? 'نشط' : 'غير نشط',
                                         style: TextStyle(
-                                          color: setting.isActive
-                                              ? Colors.green[700]
-                                              : Colors.red[700],
+                                          color:
+                                              setting.isActive
+                                                  ? Colors.green[700]
+                                                  : Colors.red[700],
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -266,18 +334,19 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                   );
                                 }
                               },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: 'edit',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.edit, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('تعديل'),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              itemBuilder:
+                                  (context) => [
+                                    const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('تعديل'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                             ),
                           ),
                         ),
@@ -346,13 +415,14 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               final isLoading = state is AdminCreateOrUpdateSettingLoadingState;
               return ElevatedButton(
                 onPressed: isLoading ? null : _submitForm,
-                child: isLoading
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : Text(_isEditing ? 'تحديث' : 'إضافة'),
+                child:
+                    isLoading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : Text(_isEditing ? 'تحديث' : 'إضافة'),
               );
             },
           ),
@@ -363,5 +433,136 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Widget _buildRoomSettingsCard() {
+    return Card(
+      color: Colors.white,
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.chat, color: Colors.orange[600], size: 32),
+                Text(
+                  'إعدادات الغرف',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Form(
+              key: _roomCostFormKey,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _roomMaxUsersController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'الحد الأقصى للمستخدمين',
+                            hintText: 'مثال: 50',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.people),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'مطلوب';
+                            }
+                            final num = int.tryParse(value.trim());
+                            if (num == null || num <= 0) {
+                              return 'يجب أن يكون رقماً صحيحاً أكبر من 0';
+                            }
+                            if (num > 1000) {
+                              return 'لا يمكن أن يتجاوز 1000';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _roomCreationCostController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'تكلفة إنشاء الغرفة',
+                            hintText: 'مثال: 10',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.attach_money),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'مطلوب';
+                            }
+                            final num = int.tryParse(value.trim());
+                            if (num == null || num < 0) {
+                              return 'يجب أن يكون رقماً صحيحاً أكبر من أو يساوي 0';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue[200]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.blue[600],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'الإعدادات الجديدة ستطبق على الغرف الجديدة فقط',
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _submitRoomSettings,
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label: const Text('حفظ إعدادات الغرف'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

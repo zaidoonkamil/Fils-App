@@ -162,3 +162,10 @@ class AdminGetSettingByKeyLoadingState extends AppStatesAdmin {}
 class AdminGetSettingByKeySuccessState extends AppStatesAdmin {}
 
 class AdminGetSettingByKeyErrorState extends AppStatesAdmin {}
+
+// Room Settings States
+class AdminUpdateRoomSettingsLoadingState extends AppStatesAdmin {}
+
+class AdminUpdateRoomSettingsSuccessState extends AppStatesAdmin {}
+
+class AdminUpdateRoomSettingsErrorState extends AppStatesAdmin {}

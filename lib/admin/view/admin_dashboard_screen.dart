@@ -10,6 +10,10 @@ import 'package:fils/admin/view/admin_ads_screen.dart';
 import 'package:fils/admin/view/admin_notifications_screen.dart';
 import 'package:fils/admin/view/admin_settings_screen.dart';
 
+import '../../controllar/cubit.dart';
+import '../../view/chat/chat_main_screen.dart';
+import 'all_user_chat_admin.dart';
+
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
 
@@ -28,12 +32,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     const AdminAdsScreen(),
     const AdminNotificationsScreen(),
     const AdminSettingsScreen(),
+    BlocProvider(
+      create: (_) => AppCubit()..fetchRoomSettings()..getRooms(),
+      child: const ChatMainScreen(),
+    ),
+    const AllUserChatAdmin(),
   ];
 
   @override
   void initState() {
     super.initState();
-    // Fetch dashboard stats when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppCubitAdmin>().getDashboardStats();
     });
@@ -51,7 +59,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // Admin Info
                 BlocBuilder<AppCubitAdmin, AppStatesAdmin>(
                   builder: (context, state) {
                     final admin = context.read<AppCubitAdmin>().currentAdmin;
@@ -141,6 +148,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.settings,
                         title: 'الإعدادات',
                         index: 6,
+                      ),
+                      _buildMenuItem(
+                        icon: Icons.meeting_room,
+                        title: 'إدارة الغرف',
+                        index: 7,
+                      ),
+                      _buildMenuItem(
+                        icon: Icons.chat,
+                        title: 'الدردشات',
+                        index: 8,
                       ),
                     ],
                   ),

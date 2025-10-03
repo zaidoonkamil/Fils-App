@@ -22,6 +22,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isTyping = false;
+  bool _isSending = false; // منع الإرسال المكرر
 
   @override
   void initState() {
@@ -30,7 +31,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       AppCubit.get(context).getRoomMessages(widget.room.id);
     });
     _scrollToBottom();
-
   }
 
   @override
@@ -44,7 +44,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 400),
         curve: Curves.easeOut,
       );
     }
@@ -52,12 +52,26 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   void _sendMessage() {
     final message = _messageController.text.trim();
-    if (message.isNotEmpty) {
+    if (message.isNotEmpty && !_isSending) {
+      setState(() {
+        _isSending = true;
+      });
+
       AppCubit.get(context).sendMessage(message);
       _messageController.clear();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _scrollToBottom();
-        });
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _scrollToBottom();
+      });
+
+      // إعادة تعيين حالة الإرسال بعد ثانية واحدة
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() {
+            _isSending = false;
+          });
+        }
+      });
     }
   }
 
@@ -75,18 +89,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             appBar: AppBar(
               backgroundColor: secoundColor,
               leading: GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     navigateBack(context);
                   },
-                  child: Icon(Icons.arrow_back_ios_new,color: Colors.white,)),
+                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white,)),
               centerTitle: true,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.room.name,style: TextStyle(color: Colors.white),),
                   Text(
-                    '${widget.room.currentUsers}/${widget.room.maxUsers} مستخدم',
-                    style: TextStyle(fontSize: 12,color: Colors.white),
+                    widget.room.name, style: TextStyle(color: Colors.white),),
+                  Text(
+                    '${widget.room.currentUsers}/${widget.room
+                        .maxUsers} مستخدم',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
                   ),
                 ],
               ),
@@ -99,7 +115,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         _showDeleteDialog();
                       }
                     },
-                    itemBuilder: (context) => [
+                    itemBuilder: (context) =>
+                    [
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(
@@ -145,47 +162,56 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                             Expanded(
                               child: state is ChatMessagesLoadingState
                                   ? Center(child: CircularProgressIndicator())
-                                  : AppCubit.get(context).messages.isEmpty
-                                      ? Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.chat_bubble_outline,
-                                                size: 64,
-                                                color: Colors.grey,
-                                              ),
-                                              SizedBox(height: 16),
-                                              Text(
-                                                'لا توجد رسائل بعد',
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              Text(
-                                                'ابدأ المحادثة الآن!',
-                                                style: TextStyle(
-                                                  color: Colors.grey[400],
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : ListView.builder(
-                                          controller: _scrollController,
-                                          padding: EdgeInsets.all(16),
-                                          itemCount: AppCubit.get(context).messages.length,
-                                          itemBuilder: (context, index) {
-                                            final message = AppCubit.get(context).messages[index];
-                                            final isOwnMessage = message.user!.id.toString() == id;
-                                            return MessageBubble(
-                                              message: message,
-                                              isOwnMessage: isOwnMessage,
-                                            );
-                                          },
-                                        ),
+                                  : AppCubit
+                                  .get(context)
+                                  .messages
+                                  .isEmpty
+                                  ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 64,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'لا توجد رسائل بعد',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'ابدأ المحادثة الآن!',
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                                  : ListView.builder(
+                                controller: _scrollController,
+                                padding: EdgeInsets.all(16),
+                                itemCount: AppCubit
+                                    .get(context)
+                                    .messages
+                                    .length,
+                                itemBuilder: (context, index) {
+                                  final message = AppCubit
+                                      .get(context)
+                                      .messages[index];
+                                  final isOwnMessage = message.user!.id
+                                      .toString() == id;
+                                  return MessageBubble(
+                                    message: message,
+                                    isOwnMessage: isOwnMessage,
+                                  );
+                                },
+                              ),
                             ),
                             // if (AppCubit.get(context).isTyping)
                             //   Container(
@@ -216,7 +242,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                         hintText: 'اكتب هنا',
                                         hintTextDirection: TextDirection.rtl,
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius: BorderRadius.circular(
+                                              25),
                                         ),
                                         contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16,
@@ -226,27 +253,45 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                       maxLines: null,
                                       textInputAction: TextInputAction.send,
                                       onTap: () {
-                                        Future.delayed(const Duration(milliseconds: 400), () {
+                                        Future.delayed(const Duration(
+                                            milliseconds: 400), () {
                                           _scrollToBottom();
                                         });
                                       },
                                       onChanged: (text) {
                                         if (!_isTyping && text.isNotEmpty) {
                                           _isTyping = true;
-                                          AppCubit.get(context).sendTyping(true);
+                                          AppCubit.get(context).sendTyping(
+                                              true);
                                         } else if (_isTyping && text.isEmpty) {
                                           _isTyping = false;
-                                          AppCubit.get(context).sendTyping(false);
+                                          AppCubit.get(context).sendTyping(
+                                              false);
                                         }
                                       },
-                                      onSubmitted: (_) => _sendMessage(),
+                                      onSubmitted: (_) {
+                                        if (!_isSending) _sendMessage();
+                                      },
                                     ),
                                   ),
                                   SizedBox(width: 8),
                                   CircleAvatar(
-                                    backgroundColor: Theme.of(context).primaryColor,
-                                    child: IconButton(
-                                      icon: Icon(Icons.send, color: Colors.white),
+                                    backgroundColor: Theme
+                                        .of(context)
+                                        .primaryColor,
+                                    child: _isSending
+                                        ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<
+                                            Color>(Colors.white),
+                                      ),
+                                    )
+                                        : IconButton(
+                                      icon: Icon(
+                                          Icons.send, color: Colors.white),
                                       onPressed: _sendMessage,
                                     ),
                                   ),
@@ -259,7 +304,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       SizedBox(
                         width: 90,
                         child: UsersList(
-                          users: AppCubit.get(context).roomUsers,
+                          users: AppCubit
+                              .get(context)
+                              .roomUsers,
                         ),
                       ),
                     ],
@@ -272,8 +319,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       },
     );
   }
-
   void _showDeleteDialog() {
+    final cubit = AppCubit.get(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -287,7 +334,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              AppCubit.get(context).deleteRoom(widget.room.id, context);
+              cubit.deleteRoom(widget.room.id, context);
               Navigator.pop(context);
             },
             child: Text('حذف', style: TextStyle(color: Colors.red)),
