@@ -18,6 +18,14 @@ class GetAdsLoadingState extends AppStates {}
 class GetAdsSuccessState extends AppStates {}
 class GetAdsErrorStates extends AppStates {}
 
+class GetTermsLoadingState extends AppStates {}
+class GetTermsSuccessState extends AppStates {}
+class GetTermsErrorStates extends AppStates {}
+
+class PostTermsLoadingState extends AppStates {}
+class PostTermsSuccessState extends AppStates {}
+class PostTermsErrorStates extends AppStates {}
+
 class LoginLoadingState extends AppStates {}
 class LoginSuccessState extends AppStates {}
 class LoginErrorState extends AppStates {}

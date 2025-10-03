@@ -1,4 +1,3 @@
-import 'package:fils/core/ navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fils/admin/controllar/cubit.dart';
@@ -19,7 +18,6 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   final _valueController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  // Room settings controllers
   final _roomCreationCostController = TextEditingController();
   final _roomMaxUsersController = TextEditingController();
 
@@ -30,14 +28,13 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AppCubitAdmin>().getAllSettings();
+      _loadInitialData();
     });
-    _loadRoomSettings();
   }
 
-  void _loadRoomSettings() async {
-    await context.read<AppCubitAdmin>().getRoomSettings();
+  void _loadInitialData() async {
     final cubit = context.read<AppCubitAdmin>();
+    await cubit.getAllSettings();
 
     if (mounted) {
       final roomCost = cubit.getSettingValue('room_creation_cost', '10');
@@ -66,7 +63,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   }
 
   void _editSetting(AdminSettingsModel setting) {
-    _keyController.text = setting.key;
+    _keyController.text = 'sawa_to_dollar_rate';
     _valueController.text = setting.value;
     _descriptionController.text = setting.description ?? '';
     _isEditing = true;
@@ -74,8 +71,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      final key =
+          _isEditing ? _keyController.text.trim() : 'sawa_to_dollar_rate';
       context.read<AppCubitAdmin>().createOrUpdateSetting(
-        key: 'sawa_to_dollar_rate',
+        key: key,
         value: _valueController.text.trim(),
         description:
             _descriptionController.text.trim().isEmpty
@@ -98,9 +97,15 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AppCubitAdmin, AppStatesAdmin>(
+      listenWhen: (previous, current) {
+        // فقط استمع للحالات المهمة التي تحتاج إشعارات
+        return current is AdminCreateOrUpdateSettingSuccessState ||
+            current is AdminCreateOrUpdateSettingErrorState ||
+            current is AdminUpdateRoomSettingsSuccessState ||
+            current is AdminUpdateRoomSettingsErrorState;
+      },
       listener: (context, state) {
         if (state is AdminCreateOrUpdateSettingSuccessState) {
-          navigateBack(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -112,10 +117,25 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             ),
           );
           _clearForm();
+          Navigator.of(context).pop();
         } else if (state is AdminCreateOrUpdateSettingErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('حدث خطأ في حفظ الإعداد'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else if (state is AdminUpdateRoomSettingsSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم تحديث إعدادات الغرف بنجاح'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else if (state is AdminUpdateRoomSettingsErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('حدث خطأ في تحديث إعدادات الغرف'),
               backgroundColor: Colors.red,
             ),
           );
@@ -186,6 +206,13 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: BlocBuilder<AppCubitAdmin, AppStatesAdmin>(
+                buildWhen: (previous, current) {
+                  // فقط أعيد البناء عند الحالات المهمة
+                  return current is AdminGetSettingsLoadingState ||
+                      current is AdminGetSettingsSuccessState ||
+                      current is AdminGetSettingsErrorState ||
+                      current is AdminCreateOrUpdateSettingSuccessState;
+                },
                 builder: (context, state) {
                   if (state is AdminGetSettingsLoadingState) {
                     return const Center(child: CircularProgressIndicator());
@@ -201,11 +228,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           const Text('خطأ في تحميل الإعدادات'),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed:
-                                () =>
-                                    context
-                                        .read<AppCubitAdmin>()
-                                        .getAllSettings(),
+                            onPressed: () => _loadInitialData(),
                             child: const Text('إعادة المحاولة'),
                           ),
                         ],
@@ -258,7 +281,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(16),
                             title: Text(
-                              'الفلس',
+                              _getSettingDisplayName(setting.key),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -374,6 +397,23 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // if (!_isEditing) ...[
+                //   TextFormField(
+                //     controller: _keyController,
+                //     decoration: const InputDecoration(
+                //       labelText: 'اسم الإعداد (Key)',
+                //       hintText: 'مثال: sawa_to_dollar_rate',
+                //       border: OutlineInputBorder(),
+                //     ),
+                //     validator: (value) {
+                //       if (value == null || value.trim().isEmpty) {
+                //         return 'مطلوب';
+                //       }
+                //       return null;
+                //     },
+                //   ),
+                //   const SizedBox(height: 16),
+                // ],
                 TextFormField(
                   controller: _valueController,
                   decoration: const InputDecoration(
@@ -433,6 +473,19 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _getSettingDisplayName(String key) {
+    switch (key) {
+      case 'sawa_to_dollar_rate':
+        return 'نسبة تحويل السوا إلى الدولار';
+      case 'room_creation_cost':
+        return 'تكلفة إنشاء الغرفة';
+      case 'room_max_users':
+        return 'الحد الأقصى للمستخدمين في الغرفة';
+      default:
+        return key.replaceAll('_', ' ').toUpperCase();
+    }
   }
 
   Widget _buildRoomSettingsCard() {
@@ -544,18 +597,38 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _submitRoomSettings,
-                      icon: const Icon(Icons.save, color: Colors.white),
-                      label: const Text('حفظ إعدادات الغرف'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[600],
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
+                  BlocBuilder<AppCubitAdmin, AppStatesAdmin>(
+                    builder: (context, state) {
+                      final isLoading =
+                          state is AdminUpdateRoomSettingsLoadingState;
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: isLoading ? null : _submitRoomSettings,
+                          icon:
+                              isLoading
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                  : const Icon(Icons.save, color: Colors.white),
+                          label: Text(
+                            isLoading ? 'جاري الحفظ...' : 'حفظ إعدادات الغرف',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[600],
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

@@ -13,6 +13,7 @@ import 'package:fils/admin/view/admin_settings_screen.dart';
 import '../../controllar/cubit.dart';
 import '../../view/chat/chat_main_screen.dart';
 import 'all_user_chat_admin.dart';
+import 'how_as_admin.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -30,6 +31,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     const AdminAgentsScreen(),
     const AdminStoreScreen(),
     const AdminAdsScreen(),
+    const HowAsAdmin(),
     const AdminNotificationsScreen(),
     const AdminSettingsScreen(),
     BlocProvider(
@@ -140,24 +142,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         index: 4,
                       ),
                       _buildMenuItem(
+                        icon: Icons.privacy_tip_outlined,
+                        title: 'سياسة الاستخدام',
+                        index: 5,
+                      ),
+                      _buildMenuItem(
                         icon: Icons.notifications,
                         title: 'الإشعارات',
-                        index: 5,
+                        index: 6,
                       ),
                       _buildMenuItem(
                         icon: Icons.settings,
                         title: 'الإعدادات',
-                        index: 6,
+                        index: 7,
                       ),
                       _buildMenuItem(
                         icon: Icons.meeting_room,
                         title: 'إدارة الغرف',
-                        index: 7,
+                        index: 8,
                       ),
                       _buildMenuItem(
                         icon: Icons.chat,
                         title: 'الدردشات',
-                        index: 8,
+                        index: 9,
                       ),
                     ],
                   ),

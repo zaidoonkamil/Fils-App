@@ -10,15 +10,32 @@ import '../../controllar/cubit.dart';
 import '../../controllar/states.dart';
 import '../../core/network/local/cache_helper.dart';
 
-class HowAs extends StatelessWidget {
-  const HowAs({super.key});
+class HowAsAdmin extends StatelessWidget {
+  const HowAsAdmin({super.key});
+
+  static TextEditingController termController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => AppCubit()..getTerms(context: context),
       child: BlocConsumer<AppCubit,AppStates>(
-        listener: (context,state){},
+        listener: (context,state){
+          if(state is PostTermsSuccessState){
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'تمت العملية بنجاح ✅',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
         builder: (context,state){
           var cubit=AppCubit.get(context);
           return SafeArea(
@@ -34,11 +51,54 @@ class HowAs extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                             token != ''? GestureDetector(
-                                  onTap: (){
-                                    navigateBack(context);
-                                  },
-                                  child: Icon(Icons.arrow_back_ios_new)):Container(),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('تعديل سياسة الاستخدام'),
+                                      content: SizedBox(
+                                        width: 300,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextFormField(
+                                              controller: termController,
+                                              keyboardType: TextInputType.text,
+                                              textAlign: TextAlign.right,
+                                              decoration: const InputDecoration(
+                                                labelText: 'سياسة الاستخدام',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('إلغاء'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            if(termController.text.trim().isNotEmpty){
+                                              cubit.postTerms(context: context, term: termController.text.trim());
+                                            }
+                                            navigateBack(context);
+                                          },
+                                          child: const Text('إضافة'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.add,color: Colors.white,),
+                                label: const Text('إضافة عنصر'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue[600],
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
                               const Text(
                                 textAlign: TextAlign.right,
                                 'سياسة الاستخدام',
@@ -91,40 +151,6 @@ class HowAs extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
-                  token != ''? Container():Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: (){
-                          CacheHelper.saveData(key: 'onBoarding',value: true );
-                          navigateAndFinish(context, Login());
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 12),
-                          margin: const EdgeInsets.symmetric(horizontal: 30,vertical: 12),
-                          decoration: BoxDecoration(
-                            color: secoundColor,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: secoundColor.withOpacity(0.5),
-                                spreadRadius: 4,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('موافق',style: TextStyle(fontSize: 16,color: Colors.white),),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20,),
-                    ],
                   ),
                 ],
               ),

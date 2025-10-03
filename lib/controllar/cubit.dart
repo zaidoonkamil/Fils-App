@@ -15,6 +15,7 @@ import '../model/AgentsModel.dart';
 import '../model/AllNotificationModel.dart';
 import '../model/CounterModel.dart';
 import '../model/GetIdShope.dart';
+import '../model/GetTerms.dart';
 import '../model/LastFinishGame.dart';
 import '../model/ProfileModel.dart';
 import '../model/SubscriptionMarketModel.dart';
@@ -254,8 +255,7 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  verifyOtp(
-      {required String email, required String code, required BuildContext context,}) {
+  verifyOtp({required String email, required String code, required BuildContext context,}) {
     emit(VerifyOtpLoadingState());
     DioHelper.postData(
       url: '/otp/verify',
@@ -279,8 +279,7 @@ class AppCubit extends Cubit<AppStates> {
   }
 
 
-  void withdrawMoney(
-      {required BuildContext context, required String amount, required String accountNumber}) {
+  void withdrawMoney({required BuildContext context, required String amount, required String accountNumber}) {
     emit(AddWithdrawMoneyLoadingState());
     String? method;
     if (typeOfCash == true) {
@@ -431,6 +430,48 @@ class AppCubit extends Cubit<AppStates> {
         showToastError(text: error.toString(), context: context,);
         print(error.toString());
         emit(GetAdsErrorStates());
+      }else {
+        print("Unknown Error: $error");
+      }
+    });
+  }
+
+
+  List<GetTerms> getTermsModel = [];
+  void getTerms({required BuildContext context,}) {
+    emit(GetTermsLoadingState());
+    DioHelper.getData(
+      url: '/terms',
+    ).then((value) {
+      getTermsModel = (value.data as List)
+          .map((item) => GetTerms.fromJson
+        (item as Map<String, dynamic>)).toList();
+      emit(GetTermsSuccessState());
+    }).catchError((error) {
+      if (error is DioError) {
+        showToastError(text: error.toString(), context: context,);
+        print(error.toString());
+        emit(GetTermsErrorStates());
+      }else {
+        print("Unknown Error: $error");
+      }
+    });
+  }
+
+  void postTerms({required BuildContext context,required String term}) {
+    emit(PostTermsLoadingState());
+    DioHelper.postData(
+      url: '/terms',
+      data: {
+        'content': term,
+      }
+    ).then((value) {
+      emit(PostTermsSuccessState());
+    }).catchError((error) {
+      if (error is DioError) {
+        showToastError(text: error.toString(), context: context,);
+        print(error.toString());
+        emit(PostTermsErrorStates());
       }else {
         print("Unknown Error: $error");
       }

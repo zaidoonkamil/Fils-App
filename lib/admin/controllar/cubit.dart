@@ -752,7 +752,9 @@ class AppCubitAdmin extends Cubit<AppStatesAdmin> {
     required String value,
     String? description,
   }) async {
-    emit(AdminCreateOrUpdateSettingLoadingState());
+    if (state is! AdminCreateOrUpdateSettingLoadingState) {
+      emit(AdminCreateOrUpdateSettingLoadingState());
+    }
     try {
       final response = await DioHelper.postData(
         url: '/admin/settings',
@@ -812,8 +814,8 @@ class AppCubitAdmin extends Cubit<AppStatesAdmin> {
   // Room Settings Management
   Future<void> getRoomSettings() async {
     try {
-      // جلب إعدادات الغرف
-      await getAllSettings();
+      // جلب إعدادات الغرف بدون إصدار Loading state
+      await _getAllSettingsSilent();
 
       // الحصول على إعدادات الغرف المحددة
       final roomCostSetting = settings.firstWhere(
@@ -856,56 +858,81 @@ class AppCubitAdmin extends Cubit<AppStatesAdmin> {
     }
   }
 
-  Future<void> updateRoomSettings({
-    required int creationCost,
-    required int maxUsers,
-  }) async {
+  // Method to get settings without emitting loading state
+  Future<void> _getAllSettingsSilent() async {
     try {
-      final response = await DioHelper.postData(
-        url: '/admin/room-settings',
-        data: {'creation_cost': creationCost, 'max_users': maxUsers},
+      final response = await DioHelper.getData(
+        url: '/admin/settings?page=1',
         token: adminToken,
       );
 
       if (response.statusCode == 200) {
-        // تحديث الإعدادات المحلية
-        final roomCostIndex = settings.indexWhere(
-          (s) => s.key == 'room_creation_cost',
-        );
-        if (roomCostIndex != -1) {
-          settings[roomCostIndex] = AdminSettingsModel(
-            id: settings[roomCostIndex].id,
-            key: 'room_creation_cost',
-            value: creationCost.toString(),
-            description: 'تكلفة إنشاء غرفة جديدة',
-            isActive: settings[roomCostIndex].isActive,
-            createdAt: settings[roomCostIndex].createdAt,
-            updatedAt: DateTime.now(),
-          );
-        }
-
-        final maxUsersIndex = settings.indexWhere(
-          (s) => s.key == 'room_max_users',
-        );
-        if (maxUsersIndex != -1) {
-          settings[maxUsersIndex] = AdminSettingsModel(
-            id: settings[maxUsersIndex].id,
-            key: 'room_max_users',
-            value: maxUsers.toString(),
-            description: 'الحد الأقصى للمستخدمين في الغرفة',
-            isActive: settings[maxUsersIndex].isActive,
-            createdAt: settings[maxUsersIndex].createdAt,
-            updatedAt: DateTime.now(),
-          );
-        }
-
-        emit(AdminUpdateRoomSettingsSuccessState());
-      } else {
-        emit(AdminUpdateRoomSettingsErrorState());
+        final data = response.data;
+        settings =
+            (data['settings'] as List)
+                .map((json) => AdminSettingsModel.fromJson(json))
+                .toList();
       }
+    } catch (e) {
+      print('Silent Get Settings Error: $e');
+    }
+  }
+
+  Future<void> updateRoomSettings({
+    required int creationCost,
+    required int maxUsers,
+  }) async {
+    if (state is! AdminUpdateRoomSettingsLoadingState) {
+      emit(AdminUpdateRoomSettingsLoadingState());
+    }
+    try {
+      // تحديث إعداد تكلفة الغرفة
+      await _createOrUpdateSettingSilent(
+        key: 'room_creation_cost',
+        value: creationCost.toString(),
+        description: 'تكلفة إنشاء غرفة جديدة',
+      );
+
+      // تحديث إعداد أقصى عدد للمستخدمين
+      await _createOrUpdateSettingSilent(
+        key: 'room_max_users',
+        value: maxUsers.toString(),
+        description: 'الحد الأقصى للمستخدمين في الغرفة',
+      );
+
+      emit(AdminUpdateRoomSettingsSuccessState());
     } catch (e) {
       print('Update Room Settings Error: $e');
       emit(AdminUpdateRoomSettingsErrorState());
+    }
+  }
+
+  // Method to create or update setting without emitting states
+  Future<void> _createOrUpdateSettingSilent({
+    required String key,
+    required String value,
+    String? description,
+  }) async {
+    try {
+      final response = await DioHelper.postData(
+        url: '/admin/settings',
+        data: {'key': key, 'value': value, 'description': description},
+        token: adminToken,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final settingsResponse = AdminSettingsResponse.fromJson(response.data);
+        final settingIndex = settings.indexWhere((s) => s.key == key);
+
+        if (settingIndex != -1) {
+          settings[settingIndex] = settingsResponse.setting;
+        } else {
+          settings.add(settingsResponse.setting);
+        }
+      }
+    } catch (e) {
+      print('Silent Create/Update Setting Error: $e');
+      rethrow;
     }
   }
 
